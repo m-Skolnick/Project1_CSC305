@@ -1,10 +1,15 @@
+<game>
+steelers
+20
+cards
+2
 <city>
 stl
 saint louis
 <game>
 bulls
 5
-cards
+testname
 2
 <team>
 stl

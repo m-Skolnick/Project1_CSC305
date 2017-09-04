@@ -5,14 +5,23 @@
 #include <string>
 #include <sstream>
 using namespace std;
-ifstream fromFile;
-ifstream fileSearcher;
-ofstream toFile;
+
+
 	//Create record structure to store team record
 struct record {
 	string tName = "blank";
 	int wins = 0, losses=0, PF=0, PA=0;
 };
+struct game {
+	string vtName = "blank",htName="blank";
+	int vtScore = 0, htScore = 0;
+};
+ifstream fromFile;
+ifstream fileSearcher;
+ofstream toFile;
+record* recordList = NULL;
+game* gameList = NULL;
+int gameCount;
 
 void writeToFile(string text) {
 	toFile.open("dataFile.txt", ios::out | ios::app); //Open the database file.
@@ -204,20 +213,81 @@ record getRecord(string searchName) {
 	fileSearcher.close(); //Close the data file
 	return tRecord;
 }
-// ****** NEEDS WORK *********************
-void buildRecordList() {
-	fileSearcher.open("dataFile.txt");
+void buildGameList() {
+	fileSearcher.open("dataFile.txt");	
 	string line = "blank";
-	int gameCount = 0;
+	gameCount = 0;
+		//Count the number of games played
 	while (getline(fileSearcher, line)) {
 		if (line == "<game>") {
 			gameCount++;
 		}
 	}
-	record* recordList = NULL;
-	//Hit a dead end here........ 
+	fileSearcher.close();
+	//Create an array of records with the max number of teams..ie..one per game
+	gameList = new game[gameCount];
+	string vtName, htName, vtScoreStr, htScoreStr;
+	int vtScore = 0, htScore = 0;
+
+	fileSearcher.open("dataFile.txt");
+	line = "blank";
+	gameCount = 0;
+	while (getline(fileSearcher, line)) {
+		if (line == "<game>") {
+			getline(fileSearcher, vtName);
+			getline(fileSearcher, vtScoreStr);
+			getline(fileSearcher, htName);
+			getline(fileSearcher, htScoreStr);
+			//Convert string scores to integers
+			stringstream ss;
+			ss.clear();
+			ss << vtScoreStr;
+			ss >> vtScore;
+			ss.clear();
+			ss << htScoreStr;
+			ss >> htScore;
+			gameList[gameCount].vtName = vtName;
+			gameList[gameCount].htName = htName;
+			gameList[gameCount].vtScore = vtScore;
+			gameList[gameCount].htScore = htScore;
+			gameCount++;
+		}
+	}
+	fileSearcher.close();
+}
+void buildRecordList() {
+
+	recordList = new record[gameCount * 2];
+	string searchName = "blank";
+	int count = 0;
+	int gamecount = sizeof(gameList);
+	while (count < sizeof(gameList)) {
+		if (gameList[count].vtName == searchName) { //If visiting team is the searched for team, count scores and wins
+			recordList[count].PF += gameList[count].vtScore;
+			recordList[count].PA += gameList[count].htScore;
+			if (gameList[count].vtScore > gameList[count].htScore) {
+				recordList[count].wins++;
+			}
+			else if (gameList[count].htScore > gameList[count].vtScore) {
+				recordList[count].losses++;
+			}
+		}
+		else if (gameList[count].htName == searchName) { //If visiting team is the searched for team, count scores and wins
+			recordList[count].PF += gameList[count].htScore;
+			recordList[count].PA += gameList[count].vtScore;
+			if (gameList[count].htScore > gameList[count].vtScore) {
+				recordList[count].wins++;
+			}
+			else if (gameList[count].vtScore > gameList[count].htScore) {
+				recordList[count].losses++;
+			}
+		}
+		count++;
+	}
 }
 void recordDialog() {
+	//buildGameList();
+	//buildRecordList();
 	string tName = "blank";
 	int wins=0, losses=0, PF=0, PA=0;
 	cout << "List dialog entered:" << endl;
