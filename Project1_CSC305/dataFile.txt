@@ -1,4 +1,21 @@
-<city><stl><Saint>
-c
-Louis
-q
+<city>
+stl
+saint louis
+<game>
+bulls
+5
+cards
+2
+<team>
+stl
+Cards
+<game>
+steelers
+20
+cards
+2
+<game>
+penguins
+20
+cards
+72
