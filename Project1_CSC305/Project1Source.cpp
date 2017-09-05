@@ -230,6 +230,13 @@ void buildTeamList() {
 	}
 	fileSearcher.close(); //Close the file
 }
+int getTeamIndex(string tName){	
+	for(int i=0; i<teamCount;i++){ //Find the index for the searched for team
+		if(tName==teamList[i].tName){
+			return i; //Return the index when the team is found
+		}	
+	}	
+}
 void addScoresToTeamList() {
 	fileSearcher.open("dataFile.txt");//Start a new search of the file from the top	
 	string line = "blank"; //Change this to NULL if possible *************************************************	
@@ -252,8 +259,17 @@ void addScoresToTeamList() {
 			vtIndex=getTeamIndex(vtName);
 			
 			
+			
 			//Needs work!!!!!!!!
-			teamList[htIndex].vtName = vtName;
+			teamList[htIndex].PF += htScore;
+			teamList[htIndex].PA += vtScore;
+			if(hometeamscore>vtscore)
+			{add the scores}
+			teamList[
+			teamList[htIndex].PF += htScore;
+			teamList[htIndex].PA += vtScore;
+			
+			
 			gameList[gameCount].htName = htName;
 			gameList[gameCount].vtScore = vtScore;
 			gameList[gameCount].htScore = htScore;
