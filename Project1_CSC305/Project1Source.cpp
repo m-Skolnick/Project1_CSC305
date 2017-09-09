@@ -5,25 +5,14 @@
 #include <string>
 #include <sstream>
 using namespace std;
-
-	//Create record structure to store team record
-struct record {
-	string tName = "blank";
-	int wins = 0, losses=0, PF=0, PA=0;
-};
-	//Create record structure to store team record
+	//Create team structure to store team record
 struct team {
 	string tName = "blank", cCode="blank", cName = "blank"; //Want to change this to NULL
-	int wins = 0, losses=0, PF=0, PA=0, winningPercentage=0;
-};
-struct game {
-	string vtName = "blank",htName="blank";
-	int vtScore = 0, htScore = 0;
+	int wins = 0, losses = 0, PF = 0, PA = 0;
+	float winningPercentage = 0, pointDifferential=0;
 };
 ifstream fromFile, fileSearcher;
 ofstream toFile;
-record* recordList = NULL;
-game* gameList = NULL;
 team* teamList = NULL;
 int gameCount=0,teamCount=0;
 
@@ -32,72 +21,28 @@ void writeToFile(string text) {
 	toFile << text << endl; //Write text into file
 	toFile.close(); //Close database file
 }
-void getCities() {
+void printCities() {
 	string line ="start", cName, cCode;
 	fromFile.open("dataFile.txt");
-	cout << "= City Name ===== Code" << endl;
+	cout << "= City Name ======== Code" << endl;
 	while (getline(fromFile, line)) {
 		if (line == "<city>") {
 			getline(fromFile, cCode);
 			getline(fromFile, cName);
-			cout << " " << left << setw(17) << cName << cCode << endl;
+			cout << " " << left << setw(20) << cName << cCode << endl;
 		}
 	}
 	cout << endl; // Add a line after printing data
 	fromFile.close(); //Close the data file
 }
-string findTeam(string findCode) {  //Delete THIS *******************************************DELETE FCTN**********************************************
-	fileSearcher.open("dataFile.txt"); //Open data file again to start at top
-	string line = "blank",cName = "(City not found)",cCode;
-	while (getline(fileSearcher, line)) { //Search through every line of the data file
-		if (line == "<city>") { //Check each city listing
-			getline(fileSearcher, cCode);
-			if (cCode == findCode) { //Return City name if city code matches the one searched
-				getline(fileSearcher, cName);
-			}
-		}
+void printTeams() {
+	cout << "= Team Name ========= City Name" << endl;
+	for (int i = 0; i<teamCount; i++) {
+		cout << left << " " << setw(20) << teamList[i].tName << teamList[i].cName << endl;		
 	}
-	fileSearcher.close(); //Close the data file
-	return cName;
-}
-string findCityName(string findCode) {
-	fileSearcher.open("dataFile.txt"); //Open data file again to start at top
-	string line = "blank",cName = "(City not found)",cCode;
-	while (getline(fileSearcher, line)) { //Search through every line of the data file
-		if (line == "<city>") { //Check each city listing
-			getline(fileSearcher, cCode);
-			if (cCode == findCode) { //Return City name if city code matches the one searched
-				getline(fileSearcher, cName);
-			}
-		}
-	}
-	fileSearcher.close(); //Close the data file
-	return cName;
-}
-int getTeamIndex(string tName){	
-	for(int i=0; i<teamCount;i++){ //Find the index for the searched for team
-		if(tName==teamList[i].tName){
-			return i; //Return the index when the team is found
-		}	
-	}	
-}
-void getTeams() {
-	string line = "blank", cName, cCode, tName;
-	fromFile.open("dataFile.txt");
-	cout << "= Team Name ===== City" << endl;
-	while(getline(fromFile, line)){
-		if (line == "<team>") {
-			getline(fromFile, cCode);
-			getline(fromFile, tName);
-			cName = findTeam(cCode); //Find the city name corresponding with the city code
-			cout << " " << left << setw(17) << tName << cName << endl;
-		}
-	}
-	cout << endl; // Add a line after printing data
-	fromFile.close(); //Close the data file
 }
 void printGames() {
-	string line = "start", vtName, htName,vtScore,htScore;
+	string line = "start", vtName, htName, vtScore, htScore;
 	fromFile.open("dataFile.txt");
 	cout << "= Visiting Team = Score == Home Team ==== Score" << endl;
 	while (getline(fromFile, line)) {
@@ -105,92 +50,52 @@ void printGames() {
 			getline(fromFile, vtName);
 			getline(fromFile, vtScore);
 			getline(fromFile, htName);
-			getline(fromFile, htScore);			
-			cout << "  " << left << setw(18) << vtName << setw(7) << vtScore 
+			getline(fromFile, htScore);
+			cout << "  " << left << setw(18) << vtName << setw(7) << vtScore
 				<< setw(17) << htName << htScore << endl;
 		}
 	}
 	cout << endl; // Add a line after printing data
 	fromFile.close(); //Close the data file
 }
-record getRecord(string searchName) {
-	record tRecord;
-	tRecord.tName = searchName;
-	fileSearcher.open("dataFile.txt");
-	string line = "start", vtName, htName, vtScoreStr, htScoreStr;
-	int vtScore=0, htScore=0;
-	int wins = 0;
-	while (getline(fileSearcher, line)) {
-		if (line == "<game>") {
-			stringstream ss;
-			getline(fileSearcher, vtName);
-			getline(fileSearcher, vtScoreStr);
-			getline(fileSearcher, htName);
-			getline(fileSearcher, htScoreStr);
-				//Convert string scores to integers
-			ss.clear();
-			ss << vtScoreStr;
-			ss >> vtScore;
-			ss.clear();
-			ss << htScoreStr;
-			ss >> htScore;
-			if (vtName == searchName) { //If visiting team is the searched for team, count scores and wins
-				tRecord.PF += vtScore;
-				tRecord.PA += htScore;
-				if (vtScore > htScore) {
-					tRecord.wins++;
-				}
-				else if (htScore > vtScore) {
-					tRecord.losses++;
-				}
-			}
-			else if (htName == searchName) { //If visiting team is the searched for team, count scores and wins
-				tRecord.PF += htScore;
-				tRecord.PA += vtScore;
-				if (htScore > vtScore) {
-					tRecord.wins++;
-				}
-				else if (vtScore > htScore) {
-					tRecord.losses++;
-				}
+string findCityNameInFile(string findCode) {
+	fileSearcher.open("dataFile.txt"); //Open data file again to start at top
+	string line = "blank",cName = "(City not found)",cCode;
+	while (getline(fileSearcher, line)) { //Search through every line of the data file
+		if (line == "<city>") { //Check each city listing
+			getline(fileSearcher, cCode);
+			if (cCode == findCode) { //Return City name if city code matches the one searched
+				getline(fileSearcher, cName);
 			}
 		}
 	}
 	fileSearcher.close(); //Close the data file
-	return tRecord;
+	return cName;
 }
-void buildTeamList() {
-	fileSearcher.open("dataFile.txt");	
-	string line = "blank"; //Change this to NULL if possible *************************************************
-	teamCount = 0;
-		//Count the number of teams
-	while (getline(fileSearcher, line)) {
-		if (line == "<team>") {
-			teamCount++;
+int getTeamIndexFromTeamList(string tName) {
+	for (int i = 0; i<teamCount; i++) { //Find the index for the searched for team
+		if (tName == teamList[i].tName) {
+			return i; //Return the index when the team is found
 		}
 	}
-	fileSearcher.close(); //Close the open file 
-	fileSearcher.open("dataFile.txt"); //Start a new search of the file from the top
-		//Create an array of teams with the max number of teams
-	teamList = new team[teamCount];
-	int i=0;
-	while (getline(fileSearcher, line)) { 
-		if (line == "<team>") { //For each team, add it to the team list
-			getline(fileSearcher, teamList[i].cCode);
-			getline(fileSearcher, teamList[i].tName);
-			i++;
-		}
+}
+void addStatsToTeamList() {
+	float tempWins = 0, tempLosses = 0;
+	for (int i = 0; i<teamCount; i++) {
+		tempWins = teamList[i].wins;
+		tempLosses = teamList[i].losses;
+		teamList[i].winningPercentage = tempWins /(tempWins + tempLosses);
+		teamList[i].pointDifferential = teamList[i].PF - teamList[i].PA;
 	}
-	fileSearcher.close(); //Close the file
 }
 void addCitiesToTeamList() {
-	for(int i=0;i<teamCount; i++){
-		teamList[i].cName = findCityName(teamList[i].cCode);
+	for (int i = 0; i<teamCount; i++) {
+		teamList[i].cName = findCityNameInFile(teamList[i].cCode);
 	}
 }
 void addScoresToTeamList() {
 	fileSearcher.open("dataFile.txt");//Start a new search of the file from the top	
-	string line = "blank",vtName,vtScoreStr,htName,htScoreStr; //Change this to NULL if possible *************************************************	
+	string line = "blank",vtName ="0",vtScoreStr ="0",htName="blank",htScoreStr="blank";
 	int i=0, vtScore=0,htScore=0,htIndex=0,vtIndex=0;
 	while (getline(fileSearcher, line)) {
 		if (line == "<game>") {
@@ -208,11 +113,13 @@ void addScoresToTeamList() {
 			ss << htScoreStr;
 			ss >> htScore;
 				//Find the index for the team in the array of teams
-			htIndex=getTeamIndex(htName);
-			vtIndex=getTeamIndex(vtName);
+			htIndex=getTeamIndexFromTeamList(htName);
+			vtIndex=getTeamIndexFromTeamList(vtName);
 				//Add the info to the records at the indexes found
 			teamList[htIndex].PF += htScore;
 			teamList[htIndex].PA += vtScore;
+			teamList[vtIndex].PF += vtScore;
+			teamList[vtIndex].PA += htScore;
 				//If the home team won, add win count to the home team and loss count to visitor
 			if(htScore>vtScore){
 				teamList[htIndex].wins++;
@@ -227,77 +134,32 @@ void addScoresToTeamList() {
 	}
 	fileSearcher.close();
 }
-void buildGameList() {
-	fileSearcher.open("dataFile.txt");	
-	string line = "blank"; //Change this to NULL if possible *************************************************
-	gameCount = 0;
-		//Count the number of games played
-	while (getline(fileSearcher, line)) {
-		if (line == "<game>") {
-			gameCount++;
-		}
-	}
-	fileSearcher.close();
-	//Create an array of records with the max number of teams..ie..one per game
-	gameList = new game[gameCount];
-	string vtName, htName, vtScoreStr, htScoreStr;
-	int vtScore = 0, htScore = 0;
-
+void buildTeamList() {
 	fileSearcher.open("dataFile.txt");
-	line = "blank";
-	gameCount = 0;
+	string line = "blank"; //Change this to NULL if possible *************************************************
+	teamCount = 0;
+	//Count the number of teams
 	while (getline(fileSearcher, line)) {
-		if (line == "<game>") {
-			getline(fileSearcher, vtName);
-			getline(fileSearcher, vtScoreStr);
-			getline(fileSearcher, htName);
-			getline(fileSearcher, htScoreStr);
-			//Convert string scores to integers
-			stringstream ss;
-			ss.clear();
-			ss << vtScoreStr;
-			ss >> vtScore;
-			ss.clear();
-			ss << htScoreStr;
-			ss >> htScore;
-			gameList[gameCount].vtName = vtName;
-			gameList[gameCount].htName = htName;
-			gameList[gameCount].vtScore = vtScore;
-			gameList[gameCount].htScore = htScore;
-			gameCount++;
+		if (line == "<team>") {
+			teamCount++;
 		}
 	}
-	fileSearcher.close();
-}
-void buildRecordList() {
-
-	recordList = new record[gameCount * 2];
-	string searchName = "blank";
-	int count = 0;
-	int gamecount = sizeof(gameList);
-	while (count < sizeof(gameList)) {
-		if (gameList[count].vtName == searchName) { //If visiting team is the searched for team, count scores and wins
-			recordList[count].PF += gameList[count].vtScore;
-			recordList[count].PA += gameList[count].htScore;
-			if (gameList[count].vtScore > gameList[count].htScore) {
-				recordList[count].wins++;
-			}
-			else if (gameList[count].htScore > gameList[count].vtScore) {
-				recordList[count].losses++;
-			}
+	fileSearcher.close(); //Close the open file 
+	fileSearcher.open("dataFile.txt"); //Start a new search of the file from the top
+									   //Create an array of teams with the max number of teams
+	teamList = new team[teamCount];
+	int i = 0;
+	while (getline(fileSearcher, line)) {
+		if (line == "<team>") { //For each team, add it to the team list
+			getline(fileSearcher, teamList[i].cCode);
+			getline(fileSearcher, teamList[i].tName);
+			i++;
 		}
-		else if (gameList[count].htName == searchName) { //If visiting team is the searched for team, count scores and wins
-			recordList[count].PF += gameList[count].htScore;
-			recordList[count].PA += gameList[count].vtScore;
-			if (gameList[count].htScore > gameList[count].vtScore) {
-				recordList[count].wins++;
-			}
-			else if (gameList[count].vtScore > gameList[count].htScore) {
-				recordList[count].losses++;
-			}
-		}
-		count++;
 	}
+	fileSearcher.close(); //Close the file
+	addCitiesToTeamList(); //Add all of the city names which match codes to the team list
+	addScoresToTeamList(); //Add all of the scores to the list of teams
+	addStatsToTeamList(); //Add each of the winning percentages to the team list
 }
 void addDialog() {
 	char code2 = 'q';
@@ -306,7 +168,7 @@ void addDialog() {
 	cin >> code2; //Get next code for what will be added
 	switch (code2) { //Enter the correct dialog based on the character entered
 	case 'c':
-		cin >> cCode; //Get the city code
+		cin >> cCode >> ws; //Get the city code
 		getline(cin, cName); //Get the city name
 			//Write the new city/name to the file
 		writeToFile("<city>");
@@ -335,7 +197,7 @@ void addDialog() {
 		writeToFile(htName);
 		writeToFile(to_string(htScore));
 			//Alert user of success
-		cout << "Successfully saved game:" << endl;
+		cout << "Successfully saved game:" << " ";
 		cout << vtName + ": " + to_string(vtScore)+" "+htName+": "+to_string(htScore) << endl << endl;
 		break;
 	}
@@ -346,38 +208,49 @@ void listDialog() {
 	cin >> code2; //Get next code
 	switch (code2) { //Enter the correct dialog based on the character entered
 	case 'c': 
-		getCities();
+		printCities();
 		break;
 	case 't':
-		getTeams(); // Need to change this to "Print Teams" ************************CHANGE NEEDED*************
+		printTeams();
 		break;
 	case 'g': 
 		printGames();
 		break;
 	}
 }
+void printRecord(int teamIndex) {
+	cout << " " << left << setw(17) << teamList[teamIndex].tName << setw(4) << teamList[teamIndex].wins << setw(4) << teamList[teamIndex].losses
+		<< setw(5) << teamList[teamIndex].PF << setw(5) << teamList[teamIndex].PA << endl;
+}
 void recordDialog() {
-	//buildGameList();
-	//buildRecordList();
 	string tName = "blank";
-	int wins=0, losses=0, PF=0, PA=0;
-	cin >> tName;
-	record tRecord = getRecord(tName);
-
-	cout << "=Team=============W===L===PF===PA" << endl;
-	cout << " " << left << setw(17) << tName << setw(4) << tRecord.wins << setw(4) << tRecord.losses
-		<< setw(5) << tRecord.PF << setw(5) << tRecord.PA << endl;
-	
+	int teamIndex = 0;
+	cin >> tName; //Get the name of the team to show record for
+	teamIndex = getTeamIndexFromTeamList(tName); //Find the index in the team list
+	cout << "=Team=============W===L===PF===PA" << endl; //Print data label
+	printRecord(teamIndex); //Print team record
+	cout << endl; //Add another space after printing team record
 }
 void standingsDialog() {
-
+	int indexToPrint = 0;
+	float lastWP = 0, lastPD = 0;
+	cout << "=Team=============W===L===PF===PA" << endl; //Print data label
+	for (int i = 0; i<teamCount; i++) {
+		if (teamList[i].winningPercentage > lastWP) {
+			indexToPrint = i;
+		}
+		if (teamList[i].winningPercentage = lastWP) {
+			if(teamList[i])
+		}
+	}
+	printRecord(indexToPrint);
 }
 
 int main() {
 	char code = 'q'; //Start with q, so if nothing is added, code quits
 		//Read instructions to perform until an instruction to quit has been reached
 	do {
-		cout << "New instruction started, please type a command:" << endl;
+		buildTeamList(); //Build a list of teams already in the file
 		cout << ">>>";
 		cin >> code; //Get the first code
 		switch (code) { //Enter the correct dialog based on the character entered
