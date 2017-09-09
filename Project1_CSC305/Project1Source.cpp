@@ -190,8 +190,8 @@ void addCitiesToTeamList() {
 }
 void addScoresToTeamList() {
 	fileSearcher.open("dataFile.txt");//Start a new search of the file from the top	
-	string line = "blank"; //Change this to NULL if possible *************************************************	
-	int i=0;
+	string line = "blank",vtName,vtScoreStr,htName,htScoreStr; //Change this to NULL if possible *************************************************	
+	int i=0, vtScore=0,htScore=0,htIndex=0,vtIndex=0;
 	while (getline(fileSearcher, line)) {
 		if (line == "<game>") {
 				//Get each of the values for every game
@@ -214,12 +214,12 @@ void addScoresToTeamList() {
 			teamList[htIndex].PF += htScore;
 			teamList[htIndex].PA += vtScore;
 				//If the home team won, add win count to the home team and loss count to visitor
-			if(hometeamscore>vtscore){
+			if(htScore>vtScore){
 				teamList[htIndex].wins++;
 				teamList[vtIndex].losses++;
 			}
 				//If the visiting team won, add win count to the visiting team and loss count to home
-			else if(hometeamscore<vtscore){
+			else if(htScore<vtScore){
 				teamList[vtIndex].wins++;
 				teamList[htIndex].losses++;
 			}
@@ -343,7 +343,6 @@ void addDialog() {
 void listDialog() {
 	char code2 = 'q';
 	string cCode, cName, tName, vtName, htName;
-		//int vtScore, htScore;
 	cin >> code2; //Get next code
 	switch (code2) { //Enter the correct dialog based on the character entered
 	case 'c': 

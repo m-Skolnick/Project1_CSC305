@@ -24,3 +24,11 @@ penguins
 20
 cards
 72
+<team>
+cardinals
+stl
+<game>
+blues
+3
+cards
+2
