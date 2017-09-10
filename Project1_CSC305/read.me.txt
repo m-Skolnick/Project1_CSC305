@@ -1,0 +1,20 @@
+Name: Micaiah Skolnick
+Date: 09/10/17
+Platform: Microsoft Visual Studio 2016 (Windows 10 - 64bit)
+No special steps should be required to compile project. (exe file found in debug folder)
+
+Summary:
+In the main function, a while loop receives instructions until the code "q" is entered
+ to stop the program. 
+All data is stored in a single txt file
+When data is added, the txt file is opened, data is written, then the text file is closed.
+When data is retrieved, the txt file is opened, data retrieved, the txt file is closed.
+Data about each team such as wins, losses, PF, PA, winning percentage, etc...
+are stored in a structure named "team"
+For easier sorting/retrieval of data, a temporary array of team structures is created each time
+data is retrieved from the txt file.
+When the user asks for data, the array of structures is built, then the desired data
+is retrieved -> printed for the user.
+
+
+

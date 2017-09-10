@@ -113,7 +113,7 @@
     <ClCompile Include="Project1Source.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="dataFile.txt" />
+    <None Include="read.me.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
