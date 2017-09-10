@@ -9,7 +9,7 @@ using namespace std;
 struct team {
 	string tName = "blank", cCode="blank", cName = "blank"; //Want to change this to NULL
 	int wins = 0, losses = 0, PF = 0, PA = 0;
-	float winningPercentage = 0, pointDifferential=0;
+	float WP = 0, PD=0;
 };
 ifstream fromFile, fileSearcher;
 ofstream toFile;
@@ -82,10 +82,13 @@ int getTeamIndexFromTeamList(string tName) {
 void addStatsToTeamList() {
 	float tempWins = 0, tempLosses = 0;
 	for (int i = 0; i<teamCount; i++) {
+		string tempname = "nothing";
 		tempWins = teamList[i].wins;
 		tempLosses = teamList[i].losses;
-		teamList[i].winningPercentage = tempWins /(tempWins + tempLosses);
-		teamList[i].pointDifferential = teamList[i].PF - teamList[i].PA;
+		teamList[i].WP = tempWins /(tempWins + tempLosses);
+		teamList[i].PD = teamList[i].PF - teamList[i].PA;
+		tempname = teamList[i].tName;
+		int b = 1;
 	}
 }
 void addCitiesToTeamList() {
@@ -219,8 +222,13 @@ void listDialog() {
 	}
 }
 void printRecord(int teamIndex) {
+	string name = "name";
+	float wp = 0;
 	cout << " " << left << setw(17) << teamList[teamIndex].tName << setw(4) << teamList[teamIndex].wins << setw(4) << teamList[teamIndex].losses
 		<< setw(5) << teamList[teamIndex].PF << setw(5) << teamList[teamIndex].PA << endl;
+	name = teamList[teamIndex].tName;
+	wp = teamList[teamIndex].WP;
+	int i = 1;
 }
 void recordDialog() {
 	string tName = "blank";
@@ -231,19 +239,48 @@ void recordDialog() {
 	printRecord(teamIndex); //Print team record
 	cout << endl; //Add another space after printing team record
 }
-void standingsDialog() {
-	int indexToPrint = 0;
-	float lastWP = 0, lastPD = 0;
-	cout << "=Team=============W===L===PF===PA" << endl; //Print data label
-	for (int i = 0; i<teamCount; i++) {
-		if (teamList[i].winningPercentage > lastWP) {
-			indexToPrint = i;
-		}
-		if (teamList[i].winningPercentage = lastWP) {
-			if(teamList[i])
+void sortByStandings() {
+	bool sorted = false;
+	team tempTeam = team();
+	while (!sorted) {
+		sorted = true;
+		for (int i = 0; i < teamCount-1; i++) {
+				//If the current WP is lower, swap the teams
+			if (teamList[i].WP < teamList[i + 1].WP) {
+				tempTeam = teamList[i + 1];
+				teamList[i + 1] = teamList[i];
+				teamList[i] = tempTeam;
+				sorted = false;
+			}
+				//If the current WP is the same as the next, check the PD 
+			else if (teamList[i].WP = teamList[i + 1].WP) {
+					//If the current PD is lower, swap the teams
+				if (teamList[i].PD < teamList[i + 1].PD) {
+					tempTeam = teamList[i + 1];
+					teamList[i + 1] = teamList[i];
+					teamList[i] = tempTeam;
+					sorted = false;
+				}
+					//If the current PD is the same as the next, sort alphabetically
+				else if (teamList[i].PD = teamList[i + 1].PD) {
+					if (teamList[i].tName > teamList[i + 1].tName) {
+						tempTeam = teamList[i + 1];
+						teamList[i + 1] = teamList[i];
+						teamList[i] = tempTeam;
+						sorted = false;
+					}
+				}
+			}
 		}
 	}
-	printRecord(indexToPrint);
+}
+void standingsDialog() {
+	sortByStandings(); //Sort all of the teams by their standings
+	cout << "=Team=============W===L===PF===PA" << endl; //Print data label
+	for (int i = 0; i<teamCount; i++) {
+		printRecord(i);
+	}
+	
 }
 
 int main() {
